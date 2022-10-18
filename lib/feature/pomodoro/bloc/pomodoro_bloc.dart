@@ -1,10 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-
 import '../repository/ticker.dart';
 
 part 'pomodoro_event.dart';
@@ -18,12 +16,13 @@ class PomodoroBloc extends Bloc<PomodoroEvent, PomodoroState> {
     on<PomodoroPaused>(_onPaused);
     on<PomodoroResumed>(_onResumed);
     on<PomodoroTicked>(_onTicked);
+    on<PomodoroReset>(_onReset);
   }
 
   final Ticker _ticker;
-  static const int _duration = 3;
-  static const int _shortBreak = 1;
-  static const int _longBreak = 2;
+  static const int _duration = 25;
+  static const int _shortBreak = 5;
+  static const int _longBreak = 15;
   static const int _tour = 0;
 
   StreamSubscription<int>? _tickerSubscription;
@@ -59,6 +58,11 @@ class PomodoroBloc extends Bloc<PomodoroEvent, PomodoroState> {
         : _isBreakOrComplete(state.tour));
   }
 
+  void _onReset(PomodoroReset event, Emitter<PomodoroState> emit) {
+    _tickerSubscription?.cancel();
+    emit(const PomodoroInitial(duration: _duration, tour: _tour));
+  }
+
   _isBreakOrComplete(int tour) {
     switch (tour) {
       case 0:
@@ -72,7 +76,7 @@ class PomodoroBloc extends Bloc<PomodoroEvent, PomodoroState> {
       case 4:
         return PomodoroBreak(duration: _longBreak, tour: tour + 1);
       case 5:
-        return const PomodoroComplete(duration: _duration, tour: 0); 
+        return PomodoroComplete(duration: 0, tour: tour);
 
       default:
         return PomodoroComplete(duration: _duration, tour: tour);

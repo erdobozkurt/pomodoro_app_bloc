@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_timer/feature/pomodoro/bloc/pomodoro_bloc.dart';
 import 'package:pomodoro_timer/feature/pomodoro/repository/ticker.dart';
-
 import '../widget/custom_timer.dart';
 
 class PomodoroView extends StatelessWidget {
@@ -25,13 +24,6 @@ class PomodoroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentDuration =
-        context.select((PomodoroBloc bloc) => bloc.state.duration);
-
-    final minStr =
-        ((currentDuration / 60) % 60).floor().toString().padLeft(2, '0');
-    final secStr = (currentDuration % 60).floor().toString().padLeft(2, '0');
-    double percent = 0; // 1 - currentDuration * eventsDuration / 100;
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: _appBarWidget(),
@@ -42,11 +34,7 @@ class PomodoroPage extends StatelessWidget {
           children: [
             BlocBuilder<PomodoroBloc, PomodoroState>(
               builder: (context, state) {
-                return CustomTimer(
-                  seconds: secStr,
-                  minutes: minStr,
-                  percent: percent,
-                );
+                return const CustomTimer();
               },
             ),
             const SizedBox(height: 24),
@@ -83,7 +71,9 @@ class PomodoroPage extends StatelessWidget {
             if (state is PomodoroOnPause) ...[
               _resumeButtonWidget(context),
             ],
-            if (state is PomodoroComplete) ...[_startButtonWidget(context)],
+            if (state is PomodoroComplete) ...[
+              _resetButtonWidget(context),
+            ],
             if (state is PomodoroBreak) ...[_startButtonWidget(context)],
           ],
         );
@@ -118,6 +108,15 @@ class PomodoroPage extends StatelessWidget {
             duration: BlocProvider.of<PomodoroBloc>(context).state.duration));
       },
       child: const Icon(Icons.play_arrow),
+    );
+  }
+
+  _resetButtonWidget(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        BlocProvider.of<PomodoroBloc>(context).add(const PomodoroReset());
+      },
+      child: const Icon(Icons.refresh),
     );
   }
 }

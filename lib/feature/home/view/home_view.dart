@@ -72,7 +72,7 @@ class _HomeViewState extends State<HomeView>
         Navigator.pushNamed(context, '/pomodoro');
       },
       style: ElevatedButton.styleFrom(
-        primary: ProjectColors.blueLotus,
+        backgroundColor: ProjectColors.blueLotus,
         minimumSize: const Size(double.infinity, 50),
         shape: const StadiumBorder(),
         padding: EdgeInsets.symmetric(

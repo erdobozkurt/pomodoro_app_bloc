@@ -35,10 +35,6 @@ class PomodoroBreak extends PomodoroState {
   const PomodoroBreak({required super.tour, required super.duration});
 }
 
-class PomodoroReset extends PomodoroState {
-  const PomodoroReset({required super.tour, required super.duration});
+class PomodoroOnReset extends PomodoroState {
+  const PomodoroOnReset({required super.tour, required super.duration});
 }
-
-
-
-

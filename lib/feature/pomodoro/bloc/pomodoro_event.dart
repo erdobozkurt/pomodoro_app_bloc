@@ -35,3 +35,7 @@ class PomodoroTicked extends PomodoroEvent {
   List<Object> get props => [duration];
 }
 
+class PomodoroReset extends PomodoroEvent {
+  const PomodoroReset();
+}
+
