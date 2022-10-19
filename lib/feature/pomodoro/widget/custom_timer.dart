@@ -17,29 +17,21 @@ class CustomTimer extends StatelessWidget {
         ((currentDuration / 60) % 60).floor().toString().padLeft(2, '0');
     final String secStr =
         (currentDuration % 60).floor().toString().padLeft(2, '0');
-    final double percent = 1 -
-        (currentDuration /
-            _eventsDuration(BlocProvider.of<PomodoroBloc>(context).state));
+    final double percent = _percentOptimizer(
+        BlocProvider.of<PomodoroBloc>(context).state, currentDuration, context);
 
     return BlocBuilder<PomodoroBloc, PomodoroState>(
       builder: (context, state) {
         return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
+          decoration: const BoxDecoration(
+            color: ProjectColors.linkWater,
             shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.white,
-                blurRadius: 5,
-                spreadRadius: 5,
-              ),
-            ],
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: CircularPercentIndicator(
               radius: MediaQuery.of(context).size.width * 0.32,
-              lineWidth: 13.0,
+              lineWidth: 12.0,
               percent: percent,
               center: Padding(
                 padding: const EdgeInsets.all(30),
@@ -50,8 +42,8 @@ class CustomTimer extends StatelessWidget {
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.white,
-                        blurRadius: 5,
-                        spreadRadius: 5,
+                        blurRadius: 8,
+                        spreadRadius: 8,
                       ),
                     ],
                   ),
@@ -64,30 +56,31 @@ class CustomTimer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            '$minStr : $secStr',
+                            '$minStr:$secStr',
                             style: Theme.of(context)
                                 .textTheme
-                                .headlineLarge!
+                                .headlineMedium!
                                 .copyWith(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
+                                  color: ProjectColors.gravel,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.8,
                                 ),
                           ),
                           const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // 4 icons for 4 pomodoro sessions
+                              // 3 icons for 3 pomodoro sessions
                               for (int i = 0; i < 3; i++)
                                 Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: _colorDecider(state, i),
-                                      shape: BoxShape.circle,
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Image.asset(
+                                    _pathDecider(
+                                      state,
+                                      i,
                                     ),
+                                    width: 24,
+                                    height: 24,
                                   ),
                                 ),
                             ],
@@ -98,16 +91,17 @@ class CustomTimer extends StatelessWidget {
                   ),
                 ),
               ),
-              rotateLinearGradient: true,
-              linearGradient: LinearGradient(
-                colors: [
-                  Colors.grey.shade200,
-                  Colors.deepPurple,
-                ],
-              ),
-              backgroundColor: Colors.grey.shade200,
+              // rotateLinearGradient: true,
+              // linearGradient: LinearGradient(
+              //   begin: Alignment.topCenter,
+              //   end: Alignment.bottomCenter,
+              //   tileMode: TileMode.mirror,
+              //   colors: _colorDecider(state),
+              // ),
+              progressColor: _colorDecider(state),
+              backgroundColor: ProjectColors.linkWater,
               circularStrokeCap: CircularStrokeCap.round,
-              maskFilter: const MaskFilter.blur(BlurStyle.inner, 3),
+              maskFilter: const MaskFilter.blur(BlurStyle.inner, 1),
             ),
           ),
         );
@@ -115,11 +109,11 @@ class CustomTimer extends StatelessWidget {
     );
   }
 
-  Color _colorDecider(PomodoroState state, int i) {
-    if (state.tour / 2 > i) {
-      return ProjectColors.vividBlue;
+  Color _colorDecider(PomodoroState state) {
+    if (state.tour % 2 == 0) {
+      return ProjectColors.blueLotus;
     } else {
-      return ProjectColors.aluminium;
+      return Colors.orange.shade800;
     }
   }
 
@@ -140,5 +134,21 @@ class CustomTimer extends StatelessWidget {
       default:
         return 0;
     }
+  }
+
+  String _pathDecider(PomodoroState state, int i) {
+    if (state.tour / 2 > i) {
+      return 'assets/icons/ic_tomato_red.png';
+    } else {
+      return 'assets/icons/ic_tomato.png';
+    }
+  }
+
+  double _percentOptimizer(
+      PomodoroState state, int currentDuration, BuildContext context) {
+    if (state is PomodoroInitial || state is PomodoroBreak) {
+      return 1 - (currentDuration / _eventsDuration(state));
+    }
+    return 1 - (currentDuration / _eventsDuration(state)) - 0.02;
   }
 }
